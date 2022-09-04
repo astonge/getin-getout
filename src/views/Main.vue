@@ -1,44 +1,44 @@
 <template>
     <div class="navbar bg-base-100">
-    <div class="navbar-start">
-        <div class="dropdown">
-        <label tabindex="0" class="btn btn-circle">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
-        </label>
-        <ul tabindex="0" class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-gray-600 rounded-box w-52">
-            <li><button type="button">Settings</button></li>
-            <li><button type="button" @click="logout">Logout</button></li>
-        </ul>
+        <div class="navbar-start">
+            <div class="dropdown">
+            <label tabindex="0" class="btn btn-circle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+            </label>
+            <ul tabindex="0" class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-gray-600 rounded-box w-52">
+                <li><button type="button">Settings</button></li>
+                <li><button type="button" @click="logout">Logout</button></li>
+            </ul>
+            </div>
         </div>
-    </div>
-    <div class="navbar-center">
-        <a class="btn btn-ghost normal-case text-xl">Get in and Get Out</a>
-    </div>
-    <div class="navbar-end">
-        <button class="btn btn-circle" @click="editMode"
-        :class="edit ? 'bg-red-600' : 'bg-gray-600'">
-        <div v-if="!edit" class="indicator">
-            <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12H20A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4V2M18.78,3C18.61,3 18.43,3.07 18.3,3.2L17.08,4.41L19.58,6.91L20.8,5.7C21.06,5.44 21.06,5 20.8,4.75L19.25,3.2C19.12,3.07 18.95,3 18.78,3M16.37,5.12L9,12.5V15H11.5L18.87,7.62L16.37,5.12Z" />
-            </svg>
+        <div class="navbar-center text-center grid flex">
+            <a class="btn btn-ghost normal-case text-xl">Get in and Get Out</a>
+            {{ firebase.auth().currentUser.email }}
         </div>
-        <div v-else class="indicator">
-            <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
-            </svg>
+        <div class="navbar-end">
+            <button class="btn btn-circle" @click="editMode" :class="edit ? 'bg-red-600' : 'bg-gray-600'">
+            <div v-if="!edit" class="indicator">
+                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12H20A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4V2M18.78,3C18.61,3 18.43,3.07 18.3,3.2L17.08,4.41L19.58,6.91L20.8,5.7C21.06,5.44 21.06,5 20.8,4.75L19.25,3.2C19.12,3.07 18.95,3 18.78,3M16.37,5.12L9,12.5V15H11.5L18.87,7.62L16.37,5.12Z" />
+                </svg>
+            </div>
+            <div v-else class="indicator">
+                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+                </svg>
+            </div>
+            </button>
         </div>
-        </button>
-    </div>
     </div>
 
     <div class="flex flex-col w-full">
         <div class="p-1 m-1" v-for="(groceryItem, index) in need()" :key="index">
-            <ItemCard :item="groceryItem" @toggle="groceryItem.got = !groceryItem.got" :edit="edit" @remove="remove(index)"/>
+            <ItemCard :item="groceryItem" @toggle="groceryItem.got = !groceryItem.got" :edit="edit" @remove="remove"/>
         </div>
         <div v-if="need().length === 0">
             <div>
                 <button class="btn btn-block btn-disabled bg-base-100 no-animate text-left">
-                    Got 'em all.. get outta here!
+                    Got 'em all.. get outta there!
                 </button>
             </div>
         </div>
@@ -89,11 +89,9 @@
     import { useRouter } from 'vue-router' // import router
     import firebase from 'firebase/app';
     import 'firebase/auth';
-    import { ref, reactive } from 'vue'
+    import { ref, reactive, onMounted } from 'vue'
 
     const router = useRouter()
-
-    let groceryList = reactive([])
 
     let depts = reactive([
         'Bakery',
@@ -106,9 +104,11 @@
         'Pasta / Sauce',
     ])
 
-    let edit = ref(false)
-    const itemName = ref("")
-    const itemCategory = ref("")
+    // let groceryList     = reactive([])
+    let groceryList     = ref([])
+    let edit            = ref(false)
+    const itemName      = ref("")
+    const itemCategory  = ref("")
 
     const logout = () => {
         firebase.auth().signOut()
@@ -116,29 +116,58 @@
     }
 
     const need = () => {
-        return groceryList.filter(need => need.got === false)
+        return groceryList.value.filter(need => need.got === false)
     }
     const have = () => {
-        return groceryList.filter(have => have.got === true)
+        return groceryList.value.filter(have => have.got === true)
     }
     const addItem = () => {
-        groceryList.push({
-            name: itemName.value,
-            dept: itemCategory.value,
-            got: false
-        })
-        itemName.value = ""
-        itemCategory.value = ""
+        firebase.firestore()
+            .collection("users")
+            .doc(firebase.auth().currentUser.uid)
+            .collection("list")
+            .add({
+                name: itemName.value,
+                dept: itemCategory.value,
+                got: false,
+                createdAt: new Date()
+            })
     }
 
     const editMode = () => {
         edit.value = !edit.value
     }
 
-    const remove = (index) => {
-        groceryList.splice(index, 1)
+    const remove = (item) => {
+        firebase.firestore().collection("users")
+        .doc(firebase.auth().currentUser.uid)
+        .collection("list")
+        .doc(item.id)
+        .delete()
 
-        if (groceryList.length === 0)
+        if (groceryList.value.length <= 1)
             edit.value = false
     }
+
+    const getListForUser = () => {
+        let list = firebase.firestore()
+            .collection("users")
+            .doc(firebase.auth().currentUser.uid)
+            .collection("list")
+        
+        list.onSnapshot(snap => {
+            groceryList.value = []            
+            snap.forEach(doc => {
+                var listItem = doc.data()
+                listItem.id = doc.id
+                groceryList.value.push(listItem)
+            })
+        })
+    }
+
+    getListForUser()
+
+    onMounted(() => {
+        getListForUser()
+    })
 </script>
