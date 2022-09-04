@@ -1,10 +1,10 @@
 <template>
     <div class="flex">
-        <button @click="toggle" class="btn btn-block shadow-lg text-left flex-grow w-1/2 text-center" 
-            :class="props.item.got ? 'bg-gray-900' : 'bg-green-900'">
+        <button @click="toggle" class="btn btn-lg btn-block shadow-sm text-center" 
+            :class="props.item.got ? 'bg-yellow-900' : 'bg-red-800'">
             <div>
-                <h2 class="font-bold">{{ props.item.name }}</h2>
-                <small class="text-xs">{{ props.item.dept }}</small>
+                <h2 class="font-bold text-2xl">{{ props.item.name }}</h2>
+                <small class="text-md">{{ props.item.dept }}</small>
             </div>
         </button>
         <button v-if="edit" class="btn btn-wide bg-red-600 flex-none w-32 ml-2" type="button" @click="remove(props.item)">  
