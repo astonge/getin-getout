@@ -1,6 +1,6 @@
 <template>
     <div class="flex">
-        <button @click="toggle" class="btn btn-lg btn-block flex-grow w-1/3 shadow-sm text-center" 
+        <button @click="toggle" class="btn btn-lg btn-block flex-grow w-1/3 shadow-sm text-center hover:bg-green-600" 
             :class="props.item.got ? 'bg-gray-900' : 'bg-green-700 text-black'">
             <div>
                 <h2 class="font-bold text-2xl">{{ props.item.name }}</h2>
