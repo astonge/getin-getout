@@ -26,14 +26,6 @@ firebase.getCurrentUser = () => {
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig)
-const gigoList = firebase.firestore().collection("/list")
-// gigoList.add({
-//   name: 'Testing',
-//   dept: 'Testing123',
-//   got: false
-// })
-
-
 
 const app = createApp(App)
 app.use(createPinia())
