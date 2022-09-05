@@ -32,8 +32,8 @@
     </div>
 
     <div class="flex flex-col w-full">
-        <div class="p-1 m-1" v-for="(groceryItem, index) in need()" :key="index">
-            <ItemCard :item="groceryItem" @toggle="groceryItem.got = !groceryItem.got" :edit="edit" @remove="remove"/>
+        <div class="p-1 m-1" v-for="groceryItem in need()" :key="groceryItem.dept">
+            <item-card :item="groceryItem" @toggle="groceryItem.got = !groceryItem.got" :edit="edit" @remove="remove"/>
         </div>
         <div v-if="need().length === 0">
             <div>
@@ -43,8 +43,8 @@
             </div>
         </div>
         <div class="divider"></div> 
-        <div class="p-1 m-1" v-for="(groceryItem, index) in have()" :key="index">
-            <ItemCard :item="groceryItem" @toggle="groceryItem.got = !groceryItem.got" :edit="edit" @remove="remove(index)"/>
+        <div class="p-1 m-1" v-for="groceryItem in have()" :key="groceryItem.dept">
+            <item-card :item="groceryItem" @toggle="groceryItem.got = !groceryItem.got" :edit="edit" @remove="remove"/>
         </div>
         <div v-if="have().length === 0">
             <div>
@@ -56,7 +56,7 @@
     </div>
 
     <div class="btm-nav p-2">
-        <label for="my-modal-4" class="btn modal-button">
+        <label for="my-modal-4" class="btn modal-button bg-blue-600">
            <span class="text-4xl">
             <svg style="width:24px;height:24px" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M13,7H11V11H7V13H11V17H13V13H17V11H13V7Z" />
@@ -69,7 +69,7 @@
     <label for="my-modal-4" class="modal cursor-pointer">
     <label class="modal-box bg-gray-700 relative" for="">
         <div class="grid gap-2">
-            <input v-model="itemName" type="text" class="p-2 rounded" placeholder="Item name"/>
+            <input v-model="itemName" type="text" class="p-2 rounded text-black" placeholder="Item name"/>
             <select v-model="itemCategory" class="select bg-white text-black w-full mt-4">
                 <option disabled selected>Select Department</option>
                 <option v-for="option in depts" :key="option">
@@ -85,11 +85,11 @@
 </template>
 
 <script setup lang="ts">
-    import ItemCard from '../components/Item.vue'
-    import { useRouter } from 'vue-router' // import router
+    import { useRouter } from 'vue-router'
     import firebase from 'firebase/app';
     import 'firebase/auth';
     import { ref, reactive, onMounted } from 'vue'
+    import ItemCard from '../components/Item.vue'
 
     const router = useRouter()
 
@@ -104,7 +104,6 @@
         'Pasta / Sauce',
     ])
 
-    // let groceryList     = reactive([])
     let groceryList     = ref([])
     let edit            = ref(false)
     const itemName      = ref("")
@@ -132,13 +131,15 @@
                 got: false,
                 createdAt: new Date()
             })
+        itemName.value = ''
+        itemCategory.value = ''
     }
 
     const editMode = () => {
         edit.value = !edit.value
     }
 
-    const remove = (item) => {
+    const remove = (item: { id: string|undefined; }) => {
         firebase.firestore().collection("users")
         .doc(firebase.auth().currentUser.uid)
         .collection("list")
@@ -158,7 +159,7 @@
         list.onSnapshot(snap => {
             groceryList.value = []            
             snap.forEach(doc => {
-                var listItem = doc.data()
+                let listItem = doc.data()
                 listItem.id = doc.id
                 groceryList.value.push(listItem)
             })
