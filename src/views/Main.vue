@@ -31,7 +31,18 @@
         </div>
     </div>
 
-    <div class="flex flex-col w-full">
+    <div v-if="addMode" class="p-4">
+        <input v-model="itemName" type="text" class="p-3 rounded rounded-lg text-black w-full" placeholder="Item name"/>
+        <select v-model="itemCategory" class="select bg-white text-black w-full mt-4">
+            <option disabled selected>Select Department</option>
+            <option v-for="option in depts" :key="option">
+                {{ option }}
+            </option>
+        </select>
+        <button @click="addItem" class="btn btn-wide mt-4 w-full">Add</button>
+    </div>
+
+    <div v-else class="flex flex-col w-full">
         <div class="p-1 m-1" v-for="groceryItem in need()" :key="groceryItem.dept">
             <item-card :item="groceryItem" @toggle="groceryItem.got = !groceryItem.got" :edit="edit" @remove="remove"/>
         </div>
@@ -56,7 +67,7 @@
     </div>
 
     <div class="btm-nav p-2">
-        <label for="my-modal-4" class="btn modal-button bg-blue-600">
+        <label for="my-modal-4" class="btn modal-button bg-blue-600" @click="add">
            <span class="text-4xl">
             <svg style="width:24px;height:24px" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M13,7H11V11H7V13H11V17H13V13H17V11H13V7Z" />
@@ -64,24 +75,6 @@
            </span>
         </label>
     </div>
-
-    <input type="checkbox" id="my-modal-4" class="modal-toggle" />
-    <label for="my-modal-4" class="modal cursor-pointer">
-    <label class="modal-box bg-gray-700 relative" for="">
-        <div class="grid gap-2">
-            <input v-model="itemName" type="text" class="p-2 rounded text-black" placeholder="Item name"/>
-            <select v-model="itemCategory" class="select bg-white text-black w-full mt-4">
-                <option disabled selected>Select Department</option>
-                <option v-for="option in depts" :key="option">
-                    {{ option }}
-                </option>
-            </select>
-        </div>
-        <div class="modal-action">
-            <label for="my-modal-4" class="btn" @click="addItem">Add!</label>
-        </div>
-    </label>
-    </label>
 </template>
 
 <script setup lang="ts">
@@ -106,6 +99,7 @@
 
     let groceryList     = ref([])
     let edit            = ref(false)
+    let addMode         = ref(false)
     const itemName      = ref("")
     const itemCategory  = ref("")
 
@@ -121,8 +115,11 @@
         return groceryList.value.filter(have => have.got === true)
     }
     const addItem = () => {
-        if (!itemName.value || !itemCategory.value)
+        addMode.value = !addMode.value
+        
+        if (!itemName.value || !itemCategory.value) {
             return
+        }
         
         firebase.firestore()
             .collection("users")
@@ -140,6 +137,10 @@
 
     const editMode = () => {
         edit.value = !edit.value
+    }
+
+    const add = () => {
+        addMode.value = true
     }
 
     const remove = (item: { id: string|undefined; }) => {
