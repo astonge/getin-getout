@@ -121,6 +121,9 @@
         return groceryList.value.filter(have => have.got === true)
     }
     const addItem = () => {
+        if (!itemName.value || !itemCategory.value)
+            return
+        
         firebase.firestore()
             .collection("users")
             .doc(firebase.auth().currentUser.uid)
