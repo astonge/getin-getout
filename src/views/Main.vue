@@ -120,6 +120,9 @@
         'Frozen',
         'Soft Drink / Chips',
         'Pasta / Sauce',
+        'Sporting Goods',
+        'Electronics',
+        'Stationary',
     ])
 
     let groceryList     = ref([])
