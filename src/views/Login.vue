@@ -2,16 +2,17 @@
     <div class="hero min-h-screen bg-base-200">
         <div class="hero-content text-center">
             <div class="max-w-md">
-            <h1 class="text-5xl font-bold">Login..</h1>
-            <h2 class="text-2xl font-semibold">Grocery shopping sucks</h2>
+                <h1 class="text-4xl font-bold">Login</h1>
+                <h2 class="text-xl font-semibold">Grocery shopping sucks..</h2>
                 <form class="card card-body">
-                <input placeholder="Email..." v-model="email" type="email" class="p-2 rounded"/>
-                <input placeholder="Password..." v-model="password" type="password" class="p-2 rounded"/>
-                <button type="button" @click="login" class="btn btn-primary">Login</button>
-            </form>
-            <div class="text-center">
-                No account? <a href="/register" class="text-bold btn btn-secondary btn-sm">Register</a>
-            </div>
+                    <input placeholder="Email..." v-model="email" type="email" class="p-2 rounded w-full"/>
+                    <input @keyup.enter="login" placeholder="Password..." v-model="password" type="password" class="p-2 rounded"/>
+                    <button type="button" @click="login" class="btn btn-primary">Login</button>
+                </form>
+                <div class="text-center grid gap-2 w-full justify-center">
+                    <span>Need an account?</span>
+                    <a href="/register" class="text-bold btn btn-secondary btn-md">Register</a>
+                </div>
             </div>
         </div>
     </div>
