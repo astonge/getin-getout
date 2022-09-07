@@ -16,7 +16,8 @@
                 </div>
         
                 <div class="navbar-center text-center grid flex">
-                    <a class="btn btn-ghost normal-case text-xl">Get in and Get Out</a>
+                    <span v-if="addMode">Add New Item</span>
+                    <span v-else class="text-xl">Get in and Get Out</span>
                 </div>
                 <div class="navbar-end">
                     <div v-if="addMode">
@@ -86,15 +87,19 @@
                     </span>
                 </button>
             </div>
-        </div> 
+        </div>
+
         <div class="drawer-side">
             <label for="my-drawer-3" class="drawer-overlay"></label>
             <ul class="menu p-4 overflow-y-auto w-80 bg-base-100 gap-2">
-                <li class="bg-gray-700 font-bold rounded rounded-2xl p-4 text-center">{{ firebase.auth().currentUser.email }}</li>
-                <li><button type="button">Settings</button></li>
+                <button type="button" class="bg-gray-700 font-bold rounded rounded-2xl p-4 text-center">
+                    {{ firebase.auth().currentUser.email }}
+                </button>
+                <!-- <li><button type="button">Settings</button></li> -->
                 <li><button type="button" @click="logout">Logout</button></li>
             </ul>
         </div>
+        
     </div>
 </template>
 
