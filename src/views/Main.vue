@@ -128,6 +128,8 @@
         'Sporting Goods',
         'Electronics',
         'Stationary',
+        'Pets',
+        'Paper Goods',
     ])
 
     let groceryList     = ref([])
