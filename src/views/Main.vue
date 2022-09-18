@@ -16,8 +16,9 @@
                 </div>
         
                 <div class="navbar-center text-center grid flex">
-                    <span v-if="addMode">Add New Item</span>
-                    <span v-else class="text-xl">Get in and Get Out</span>
+                    <span v-if="addMode" class="text-xl uppercase">Add New Item</span>
+                    <span v-else-if="editMode" class="text-xl uppercase">Edit Your Items</span>
+                    <span v-else class="text-xl uppercase">Get in and Get Out</span>
                 </div>
                 <div class="navbar-end">
                     <div v-if="addMode">
@@ -27,7 +28,7 @@
                     </div>
 
                     <div v-else>
-                        <button class="btn btn-circle" @click="editMode" :class="edit ? 'bg-red-600' : 'bg-gray-600'">
+                        <button class="btn btn-circle" @click="toggleEditMode" :disabled="edit" :class="editMode ? 'bg-red-600' : 'bg-gray-600'">
                         <div v-if="!edit" class="indicator">
                             <svg style="width:24px;height:24px" viewBox="0 0 24 24">
                                 <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12H20A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4V2M18.78,3C18.61,3 18.43,3.07 18.3,3.2L17.08,4.41L19.58,6.91L20.8,5.7C21.06,5.44 21.06,5 20.8,4.75L19.25,3.2C19.12,3.07 18.95,3 18.78,3M16.37,5.12L9,12.5V15H11.5L18.87,7.62L16.37,5.12Z" />
@@ -54,20 +55,46 @@
                 <button :disabled="!itemName || !itemCategory" @click="addItem" class="btn btn-wide mt-4 w-full bg-green-600 text-black">Add</button>
             </div>
 
-            <div v-else class="flex flex-col w-full">
-                <div class="p-1 m-1" v-for="groceryItem in need()" :key="groceryItem.dept">
-                    <item-card :item="groceryItem" @toggle="groceryItem.got = !groceryItem.got" :edit="edit" @remove="remove"/>
+            <div v-else>
+                <div class="p-1 m-1 flex flex-row" v-for="groceryItem in need()" :key="groceryItem.dept">
+                    <item-card 
+                        :item="groceryItem"
+                        :depts="depts"
+                        @toggle="groceryItem.got = !groceryItem.got"
+                        :edit="edit"
+                        class="basis-full"
+                    />
+                    <EditButton v-if="editMode" :edit="groceryItem.editing" @click="groceryItem.editing = !groceryItem.editing" class="ml-2 basis-auto"/>
+                    <DeleteButton v-if="editMode" 
+                        :item="groceryItem" 
+                        class="ml-2 basis-auto" 
+                        @remove="remove"
+                        :disabled="edit"
+                    />
                 </div>
                 <div v-if="need().length === 0">
                     <div>
-                        <button class="btn btn-block btn-disabled bg-base-100 no-animate text-left">
+                        <button class="btn btn-block btn-disabled bg-base-100 text-gray-500 no-animate text-left">
                             Got 'em all.. get outta there!
                         </button>
                     </div>
                 </div>
                 <div class="divider"></div> 
-                <div class="p-1 m-1" v-for="groceryItem in have()" :key="groceryItem.dept">
-                    <item-card :item="groceryItem" @toggle="groceryItem.got = !groceryItem.got" :edit="edit" @remove="remove"/>
+                <div class="p-1 m-1 flex flex-row" v-for="groceryItem in have()" :key="groceryItem.dept">
+                    <item-card 
+                        :item="groceryItem"
+                        :edit="edit"
+                        :depts="depts"
+                        @toggle="groceryItem.got = !groceryItem.got"
+                        class="basis-full"
+                    />
+                    <EditButton v-if="editMode" @click="edit = !edit" class="ml-2 basis-auto"/>
+                    <DeleteButton v-if="editMode" 
+                        :item="groceryItem" 
+                        class="ml-2 basis-auto" 
+                        @remove="remove"
+                        :disabled="edit"
+                    />
                 </div>
                 <div v-if="have().length === 0">
                     <div>
@@ -79,7 +106,7 @@
             </div>
 
             <div class="btm-nav p-2">
-                <button :disabled="addMode" class="btn modal-button bg-blue-600" @click="add">
+                <button :disabled="addMode || editMode" class="btn modal-button bg-blue-600" @click="add">
                     <span class="text-4xl">
                         <svg style="width:24px;height:24px" viewBox="0 0 24 24">
                             <path fill="currentColor" d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M13,7H11V11H7V13H11V17H13V13H17V11H13V7Z" />
@@ -109,6 +136,8 @@
     import 'firebase/auth';
     import { ref, reactive, onMounted, computed } from 'vue'
     import ItemCard from '../components/Item.vue'
+    import EditButton from '../components/EditButton.vue'
+    import DeleteButton from '../components/DeleteButton.vue'
 
     const router = useRouter()
 
@@ -135,6 +164,7 @@
     let groceryList     = ref([])
     let edit            = ref(false)
     let addMode         = ref(false)
+    let editMode        = ref(false)
     const itemName      = ref("")
     const itemCategory  = ref("")
 
@@ -164,14 +194,16 @@
                 name: itemName.value,
                 dept: itemCategory.value,
                 got: false,
+                editing: false,
                 createdAt: new Date()
             })
         itemName.value = ''
         itemCategory.value = ''
     }
 
-    const editMode = () => {
-        edit.value = !edit.value
+    const toggleEditMode = () => {
+        editMode.value = !editMode.value
+        console.log(editMode.value)
     }
 
     const add = () => {
