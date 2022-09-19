@@ -32,7 +32,6 @@
     const login = () => {
         firebase.auth().signInWithEmailAndPassword(email.value, password.value)
         .then((data) => {
-            console.log('Logged in')
             router.push('/list')
         })
         .catch(error => {
