@@ -203,7 +203,6 @@
 
     const toggleEditMode = () => {
         editMode.value = !editMode.value
-        console.log(editMode.value)
     }
 
     const add = () => {
