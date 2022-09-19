@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import firebase from 'firebase/app';
-import 'firebase/auth';
+import firebase from 'firebase/app'
+import 'firebase/auth'
 
 const router = createRouter({
     history: createWebHistory(),

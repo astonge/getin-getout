@@ -3,9 +3,11 @@ import { createPinia } from 'pinia'
 import './style.css'
 import App from './App.vue'
 import router from './router'
-import firebase from 'firebase/app';
-import 'firebase/auth';
-import 'firebase/firestore';
+import firebase from 'firebase/app'
+import 'firebase/auth'
+import 'firebase/firestore'
+// import * as firebase from 'firebase/app'
+// import 'firebase/firestore'
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -16,6 +18,8 @@ const firebaseConfig = {
   messagingSenderId: import.meta.env.VITE_FB_MESSAGINGSENDERID,
   appId: import.meta.env.VITE_FB_APPID,
 };
+
+// @ts-ignore
 firebase.getCurrentUser = () => {
   return new Promise((resolve, reject) => {
       const unsubscribe = firebase.auth().onAuthStateChanged(user => {
@@ -24,7 +28,9 @@ firebase.getCurrentUser = () => {
       }, reject);
   })
 };
+
 // Initialize Firebase
+// @ts-ignore
 firebase.initializeApp(firebaseConfig)
 
 const app = createApp(App)
